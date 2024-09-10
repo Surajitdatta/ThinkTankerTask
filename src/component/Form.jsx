@@ -11,29 +11,23 @@ const SimpleForm = () => {
   const [description, setDescription] = useState("");
   const [available, setAvailable] = useState(false);
   const [productImage, setProductImage] = useState(null);
-
   const [products, setProducts] = useState([]);
   const [editingIndex, setEditingIndex] = useState(null);
-
-  const [filter, setFilter] = useState("")
+  const [filter, setFilter] = useState("");
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-
     if (type === 'checkbox') {
-      if (name === 'available') {
-        setAvailable(checked);
-      } else if (name === 'tags') {
+      if (name === 'available') setAvailable(checked);
+      else if (name === 'tags') {
         setTags((prevTags) =>
           checked ? [...prevTags, value] : prevTags.filter((tag) => tag !== value)
         );
       }
     } else if (type === 'file') {
       setProductImage(e.target.files[0]);
-    } else if (type === 'radio') {
-      if (name === 'category') {
-        setCategory(value);
-      }
+    } else if (type === 'radio' && name === 'category') {
+      setCategory(value);
     } else {
       if (name === 'productName') setProductName(value);
       if (name === 'price') setPrice(value);
@@ -53,8 +47,6 @@ const SimpleForm = () => {
     return true;
   };
 
-
-
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
@@ -67,24 +59,26 @@ const SimpleForm = () => {
         available,
         productImage: productImage ? URL.createObjectURL(productImage) : null,
       };
-
       if (editingIndex !== null) {
-        const updatedProducts = [...products]; // Create a shallow copy of the products array
-        updatedProducts.splice(editingIndex, 1, newProduct); // Replace the product at editingIndex with newProduct
-        setProducts(updatedProducts); // Update the state with the modified products array
-        setEditingIndex(null); // Reset editingIndex to null
+        const updatedProducts = [...products];
+        updatedProducts.splice(editingIndex, 1, newProduct);
+        setProducts(updatedProducts);
+        setEditingIndex(null);
       } else {
         setProducts([...products, newProduct]);
       }
-
-      setProductName("");
-      setPrice("");
-      setCategory("");
-      setTags([]);
-      setDescription("");
-      setAvailable(false);
-      setProductImage(null);
+      resetForm();
     }
+  };
+
+  const resetForm = () => {
+    setProductName("");
+    setPrice("");
+    setCategory("");
+    setTags([]);
+    setDescription("");
+    setAvailable(false);
+    setProductImage(null);
   };
 
   const edit = (index) => {
@@ -99,17 +93,30 @@ const SimpleForm = () => {
     setEditingIndex(index);
   };
 
-  
+  const deleteProduct = (index) => {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setProducts(products.filter((_, i) => i !== index));
+        Swal.fire('Deleted!', 'Your product has been deleted.', 'success');
+      }
+    });
+  };
 
-
-  //filtering the prodct
   const filteredProducts = products.filter((product) =>
     product.productName.toLowerCase().includes(filter.toLowerCase())
   );
 
   return (
     <>
-      <h2>Product form</h2>
+      <h2>Product Form</h2>
       <form className="product-form" onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="productName">Product Name</label>
@@ -121,7 +128,6 @@ const SimpleForm = () => {
             value={productName}
           />
         </div>
-
         <div className="form-group">
           <label htmlFor="price">Price</label>
           <input
@@ -132,7 +138,6 @@ const SimpleForm = () => {
             value={price}
           />
         </div>
-
         <div className="form-group">
           <label>Category</label>
           <div className="category-options">
@@ -168,7 +173,6 @@ const SimpleForm = () => {
             </label>
           </div>
         </div>
-
         <div className="form-group">
           <label>Tags</label>
           <div className="tags">
@@ -204,7 +208,6 @@ const SimpleForm = () => {
             </label>
           </div>
         </div>
-
         <div className="form-group">
           <label htmlFor="description">Description</label>
           <textarea
@@ -214,7 +217,6 @@ const SimpleForm = () => {
             value={description}
           ></textarea>
         </div>
-
         <div className="form-group">
           <label>
             <input
@@ -226,7 +228,6 @@ const SimpleForm = () => {
             Available
           </label>
         </div>
-
         <div className="form-group">
           <label htmlFor="productImage">Product Image</label>
           <input
@@ -236,7 +237,6 @@ const SimpleForm = () => {
             onChange={handleInputChange}
           />
         </div>
-
         <button type="submit">Submit</button>
       </form>
 
@@ -251,7 +251,7 @@ const SimpleForm = () => {
         />
       </div>
 
-      <Table data={filteredProducts} edit={edit}   />
+      <Table data={filteredProducts} edit={edit} deleteProduct={deleteProduct} />
     </>
   );
 };

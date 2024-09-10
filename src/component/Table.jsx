@@ -1,7 +1,7 @@
 import React from 'react';
 import './Table.css';
 
-const Table = ({ data, edit }) => {
+const Table = ({ data, edit, deleteProduct }) => {
   return (
     <div className="table-container">
       <table>
@@ -42,7 +42,12 @@ const Table = ({ data, edit }) => {
                 >
                   Edit
                 </button>
-                
+                <button
+                  className="delete-button"
+                  onClick={() => deleteProduct(index)}
+                >
+                  Delete
+                </button>
               </td>
             </tr>
           ))}
